@@ -13,7 +13,7 @@ permissions: # Definindo permissões mínimas necessárias para o workflow
   id-token: write
 
 env: # Definindo variáveis de ambiente para uso no workflow
-  ARTIFACT_NAME: "api-${{ github.sha }}.jar"
+  ARTIFACT_NAME: "java-api-artifact" # NOME PADRONIZADO PARA UPLOAD E DOWNLOAD
   IMAGE_NAME: "java-api:${{ github.sha }}"
   REGISTRY_NAME: ${{ secrets.AZURE_REGISTRY_NAME }}
   REGISTRY_IMAGE: "${{ secrets.AZURE_REGISTRY_NAME }}/java-api:${{ github.sha }}"
@@ -49,11 +49,13 @@ jobs: # Definindo o job principal do workflow
           exit-code: 0
           severity: CRITICAL,HIGH
       
-      - name: Azure Login # Passo para autenticar no Azure
+      # CORREÇÃO: Usando azure/login para autenticar o AZ CLI
+      - name: Azure Login
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       
+      # CORREÇÃO: Usando o AZ CLI para login no ACR (substitui o acr-helper que falhou)
       - name: Docker Login to ACR via CLI
         run: az acr login --name ${{ env.REGISTRY_NAME }}
       
@@ -62,23 +64,27 @@ jobs: # Definindo o job principal do workflow
           docker tag ${{ env.IMAGE_NAME }} ${{ env.REGISTRY_IMAGE }}
           docker push ${{ env.REGISTRY_IMAGE }}
 
-      - name: Artefato Gerado # Passo para arquivar o artefato gerado
+      # CORREÇÃO DE ARTEFATO: Usando ARTIFACT_NAME do ENV e definindo PATH
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.ARTIFACT_NAME }}
-          path: target/*.jar
+          name: ${{ env.ARTIFACT_NAME }} # Usa o nome padronizado (java-api-artifact)
+          path: target/*.jar              # Onde o Maven salva o JAR
           retention-days: 1
       
-  deploy-staging: # Definindo o job de deploy para o ambiente de staging
-      needs: build-and-test
-      runs-on: ubuntu-latest
-      steps:
-        - name: Download Jar # Passo para baixar o artefato gerado
-          uses: actions/download-artifact@v4
-          with:
-            name: java-api-artifact
-
-        - name: Fake Deploy to Staging # Passo para simular o deploy para o ambiente de staging
-          run: |
-            echo "Build and Test: ${{ env.ARTIFACT_NAME}}"
-            echo "Fake deploy to Staging environment"
+  # CORREÇÃO ESTRUTURAL: Este é um novo Job, alinhado com 'build-and-test'
+  deploy-staging:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    
+    steps:
+      # CORREÇÃO DE ARTEFATO: Usa o mesmo nome de variável definido no ENV
+      - name: Download Jar
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.ARTIFACT_NAME }} # Usa o nome padronizado (java-api-artifact)
+          
+      - name: Fake Deploy to Staging # Passo para simular o deploy para o ambiente de staging
+        run: |
+          echo "Artifact ${{ env.ARTIFACT_NAME }} downloaded successfully."
+          echo "Fake deploy to Staging environment"
