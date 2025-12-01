@@ -55,7 +55,7 @@ jobs: # Definindo o job principal do workflow
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       
       - name: Docker Login to ACR # Passo para autenticar no Azure Container Registry
-        uses: azure/docker-login@v1
+        uses: azure/acr-helper@v1
         with:
           container-registry: ${{ env.REGISTRY_NAME }}
       
