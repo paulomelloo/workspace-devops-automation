@@ -63,7 +63,7 @@ jobs: # Definindo o job principal do workflow
           docker push ${{ env.REGISTRY_IMAGE }}
 
       - name: Archive artifact # Passo para arquivar o artefato gerado
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.ARTIFACT_NAME }}
       
@@ -72,7 +72,7 @@ jobs: # Definindo o job principal do workflow
       runs-on: ubuntu-latest
       steps:
         - name: Download Jar # Passo para baixar o artefato gerado
-          uses: actions/download-artifact@v3
+          uses: actions/download-artifact@v4
           with:
             name: java-api-artifact
 
