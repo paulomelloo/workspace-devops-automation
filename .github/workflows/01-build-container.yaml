@@ -62,10 +62,12 @@ jobs: # Definindo o job principal do workflow
           docker tag ${{ env.IMAGE_NAME }} ${{ env.REGISTRY_IMAGE }}
           docker push ${{ env.REGISTRY_IMAGE }}
 
-      - name: Archive artifact # Passo para arquivar o artefato gerado
+      - name: Artefato Gerado # Passo para arquivar o artefato gerado
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.ARTIFACT_NAME }}
+          path: target/*.jar
+          retention-days: 1
       
   deploy-staging: # Definindo o job de deploy para o ambiente de staging
       needs: build-and-test
