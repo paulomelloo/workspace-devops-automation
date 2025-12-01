@@ -50,12 +50,14 @@ jobs: # Definindo o job principal do workflow
           severity: CRITICAL,HIGH
       
       - name: Azure Login # Passo para autenticar no Azure
-        uses: azure/docker-login@v2
+        uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       
       - name: Docker Login to ACR # Passo para autenticar no Azure Container Registry
-        run: az acr login --name ${{ env.REGISTRY_NAME }}
+        uses: azure/docker-login@v1
+        with:
+          container-registry: ${{ env.REGISTRY_NAME }}
       
       - name: Tag and Push Docker image to ACR # Passo para marcar e enviar a imagem Docker para o ACR
         run: |
