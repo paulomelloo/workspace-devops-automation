@@ -13,10 +13,10 @@ permissions: # Definindo permissões mínimas necessárias para o workflow
   id-token: write
 
 env: # Definindo variáveis de ambiente para uso no workflow
-  ARTIFACT_NAME: "api-${GITHUB_SHA}.jar"
-  IMAGE_NAME: "java-api:${GITHUB_SHA}"
+  ARTIFACT_NAME: "api-${{ github.sha }}.jar"
+  IMAGE_NAME: "java-api:${{ github.sha }}"
   REGISTRY_NAME: ${{ secrets.AZURE_REGISTRY_NAME }}
-  REGISTRY_IMAGE: "${{ secrets.AZURE_REGISTRY_NAME }}/java-api:${GITHUB_SHA}"
+  REGISTRY_IMAGE: "${{ secrets.AZURE_REGISTRY_NAME }}/java-api:${{ github.sha }}"
 
 jobs: # Definindo o job principal do workflow
   build-and-test: # Nome do job
@@ -45,9 +45,9 @@ jobs: # Definindo o job principal do workflow
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ env.IMAGE_NAME }}
-          format: 'table'
-          exit-code: '0'
-          severity: 'CRITICAL,HIGH'
+          format: table
+          exit-code: 0
+          severity: CRITICAL,HIGH
       
       - name: Azure Login # Passo para autenticar no Azure
         uses: azure/docker-login@v2
